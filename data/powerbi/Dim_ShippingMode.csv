@@ -1,0 +1,5 @@
+Shipping_Mode,SLA_Transit_Days,Cost_Tier,Reliability_Index
+Standard Ground,5,Low,0.72
+Express Air,2,High,0.88
+Same-Day Courier,1,Premium,0.94
+Freight Rail,7,Economy,0.65

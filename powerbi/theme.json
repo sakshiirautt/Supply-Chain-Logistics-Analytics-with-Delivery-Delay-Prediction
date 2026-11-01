@@ -1,0 +1,69 @@
+{
+  "name": "SupplyChainAnalyticsTheme",
+  "dataColors": [
+    "#1A365D",
+    "#2B6CB0",
+    "#38A169",
+    "#E53E3E",
+    "#DD6B20",
+    "#319795",
+    "#805AD5",
+    "#D69E2E"
+  ],
+  "background": "#F7FAFC",
+  "foreground": "#2D3748",
+  "tableAccent": "#2B6CB0",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "outspacePane": [
+          {
+            "backgroundColor": { "solid": { "color": "#EDF2F7" } }
+          }
+        ],
+        "title": [
+          {
+            "show": true,
+            "fontColor": { "solid": { "color": "#1A365D" } },
+            "fontSize": 12,
+            "fontFamily": "Segoe UI Semibold"
+          }
+        ],
+        "border": [
+          {
+            "show": true,
+            "color": { "solid": { "color": "#E2E8F0" } },
+            "radius": 6
+          }
+        ],
+        "dropShadow": [
+          {
+            "show": true,
+            "color": { "solid": { "color": "rgba(0, 0, 0, 0.04)" } },
+            "position": "Outer",
+            "preset": "BottomRight"
+          }
+        ]
+      }
+    },
+    "card": {
+      "*": {
+        "labels": [
+          {
+            "color": { "solid": { "color": "#1A365D" } },
+            "fontSize": 24,
+            "fontFamily": "Segoe UI Bold"
+          }
+        ],
+        "categoryLabels": [
+          {
+            "color": { "solid": { "color": "#718096" } },
+            "fontSize": 10,
+            "fontFamily": "Segoe UI"
+          }
+        ]
+      }
+    }
+  }
+}
+

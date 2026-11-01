@@ -1,0 +1,165 @@
+// ==============================================================================
+// POWER BI DAX MEASURES: Supply Chain & Logistics Analytics
+// Copy and paste these measures directly into Power BI Desktop
+// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// 1. VOLUME & OPERATIONAL KPIS
+// ------------------------------------------------------------------------------
+
+Total Shipments = 
+COUNTROWS(Fact_Shipments)
+
+On-Time Deliveries = 
+CALCULATE(
+    COUNTROWS(Fact_Shipments),
+    Fact_Shipments[Delivery_Delayed] = 0
+)
+
+Delayed Deliveries = 
+CALCULATE(
+    COUNTROWS(Fact_Shipments),
+    Fact_Shipments[Delivery_Delayed] = 1
+)
+
+On-Time Delivery Rate (OTDR %) = 
+DIVIDE([On-Time Deliveries], [Total Shipments], 0)
+
+Delivery Delay Rate (%) = 
+DIVIDE([Delayed Deliveries], [Total Shipments], 0)
+
+Average Distance (km) = 
+AVERAGE(Fact_Shipments[Distance])
+
+Average Dock Waiting Time (hrs) = 
+AVERAGE(Fact_Shipments[Waiting_Time])
+
+Average Actual Transit Days = 
+AVERAGE(Fact_Shipments[Actual_Transit_Days])
+
+Average Days Late = 
+CALCULATE(
+    AVERAGE(Fact_Shipments[Delivery_Delay_Days]),
+    Fact_Shipments[Delivery_Delayed] = 1
+)
+
+
+// ------------------------------------------------------------------------------
+// 2. FINANCIAL & COST KPIS
+// ------------------------------------------------------------------------------
+
+Total Transportation Cost = 
+SUM(Fact_Shipments[Transportation_Cost])
+
+Average Cost Per Shipment = 
+AVERAGE(Fact_Shipments[Transportation_Cost])
+
+Average Cost Per KM = 
+AVERAGE(Fact_Shipments[Cost_Per_KM])
+
+Estimated SLA Delay Penalty = 
+// Industry standard $50/day penalty for SLA breaches
+SUMX(
+    Fact_Shipments,
+    Fact_Shipments[Delivery_Delay_Days] * 50.00
+)
+
+Penalty Cost Ratio (%) = 
+DIVIDE([Estimated SLA Delay Penalty], [Total Transportation Cost], 0)
+
+
+// ------------------------------------------------------------------------------
+// 3. MACHINE LEARNING & PREDICTION AUDIT MEASURES
+// ------------------------------------------------------------------------------
+
+Predicted Delayed Shipments = 
+CALCULATE(
+    COUNTROWS(Fact_Shipments),
+    Fact_Shipments[Predicted_Status] = "Delayed"
+)
+
+Predicted On-Time Shipments = 
+CALCULATE(
+    COUNTROWS(Fact_Shipments),
+    Fact_Shipments[Predicted_Status] = "On Time"
+)
+
+High Risk Shipments Count = 
+CALCULATE(
+    COUNTROWS(Fact_Shipments),
+    Fact_Shipments[Delay_Probability] >= 0.70
+)
+
+ML Correct Predictions = 
+CALCULATE(
+    COUNTROWS(Fact_Shipments),
+    Fact_Shipments[Prediction_Correct] = 1
+)
+
+ML Model Accuracy (%) = 
+DIVIDE([ML Correct Predictions], [Total Shipments], 0)
+
+// Confusion Matrix Measures
+True Positives (TP) = 
+CALCULATE(
+    COUNTROWS(Fact_Shipments),
+    Fact_Shipments[Predicted_Status] = "Delayed" && Fact_Shipments[Delivery_Status] = "Delayed"
+)
+
+True Negatives (TN) = 
+CALCULATE(
+    COUNTROWS(Fact_Shipments),
+    Fact_Shipments[Predicted_Status] = "On Time" && Fact_Shipments[Delivery_Status] = "On Time"
+)
+
+False Positives (FP) = 
+CALCULATE(
+    COUNTROWS(Fact_Shipments),
+    Fact_Shipments[Predicted_Status] = "Delayed" && Fact_Shipments[Delivery_Status] = "On Time"
+)
+
+False Negatives (FN - Costly SLA Breaches) = 
+CALCULATE(
+    COUNTROWS(Fact_Shipments),
+    Fact_Shipments[Predicted_Status] = "On Time" && Fact_Shipments[Delivery_Status] = "Delayed"
+)
+
+ML Precision (%) = 
+DIVIDE([True Positives (TP)], [True Positives (TP)] + [False Positives (FP)], 0)
+
+ML Recall (%) = 
+DIVIDE([True Positives (TP)], [True Positives (TP)] + [False Negatives (FN - Costly SLA Breaches)], 0)
+
+ML F1-Score = 
+DIVIDE(
+    2 * [ML Precision (%)] * [ML Recall (%)],
+    [ML Precision (%)] + [ML Recall (%)],
+    0
+)
+
+
+// ------------------------------------------------------------------------------
+// 4. TIME INTELLIGENCE MEASURES (Requires Dim_Date)
+// ------------------------------------------------------------------------------
+
+Shipments Previous Month = 
+CALCULATE(
+    [Total Shipments],
+    DATEADD(Dim_Date[Date], -1, MONTH)
+)
+
+MoM Shipment Growth (%) = 
+DIVIDE([Total Shipments] - [Shipments Previous Month], [Shipments Previous Month], 0)
+
+Delay Rate Previous Month = 
+CALCULATE(
+    [Delivery Delay Rate (%)],
+    DATEADD(Dim_Date[Date], -1, MONTH)
+)
+
+MoM Delay Rate Change (%) = 
+[Delivery Delay Rate (%)] - [Delay Rate Previous Month]
+
+YTD Total Shipments = 
+TOTALYTD([Total Shipments], Dim_Date[Date])
+
